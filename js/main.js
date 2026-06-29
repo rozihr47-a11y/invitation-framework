@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    Invitation.init();
+    window.Invitation.init();
 
 });
