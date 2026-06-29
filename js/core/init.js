@@ -1,7 +1,18 @@
-Invitation.init = function () {
+/**
+ * Invitation Framework
+ * Initialization
+ */
 
-    Invitation.state.initialized = true;
+(function () {
 
-    Invitation.debug.log("Framework initialized.");
+    window.Invitation.init = function () {
 
-};
+        this.dom.cache();
+
+        this.state.initialized = true;
+
+        this.debug.log("Framework initialized.");
+
+    };
+
+})();
