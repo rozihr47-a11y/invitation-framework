@@ -1,3 +1,3 @@
-console.log("Invitation Framework Loaded");
+console.log("Loaded from external JS!");
 
-document.body.innerHTML += "<h1 style='color:red'>JS Loaded!</h1>";
+document.body.style.outline = "5px solid lime";
