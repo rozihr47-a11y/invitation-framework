@@ -33,6 +33,7 @@
 
         this.floatingShowLess =
             document.getElementById("floatingShowLess");
+            
 
     };
 
