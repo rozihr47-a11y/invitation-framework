@@ -81,6 +81,12 @@ Invitation.modules.horizontalScroll.init = function () {
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const races = document.querySelector(".races");
+
+    if (!races) return;
+
+    console.log(races.offsetWidth);
+
 };
 
 })();
