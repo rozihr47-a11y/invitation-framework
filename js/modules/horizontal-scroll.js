@@ -87,6 +87,8 @@ Invitation.modules.horizontalScroll.init = function () {
 
     console.log(races.offsetWidth);
 
+    const tl_horizontal = gsap.timeline();
+
 };
 
 })();
