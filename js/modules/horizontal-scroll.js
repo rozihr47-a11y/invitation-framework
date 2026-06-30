@@ -1,78 +1,78 @@
-// /**
-//  * Invitation Framework
-//  * Horizontal Scroll Module
-//  */
+/**
+ * Invitation Framework
+ * Horizontal Scroll Module
+ */
 
-// (function () {
+(function () {
 
-//     const Invitation = window.Invitation;
+    const Invitation = window.Invitation;
 
-//     Invitation.modules.horizontalScroll =
-//         Invitation.modules.horizontalScroll || {};
+    Invitation.modules.horizontalScroll =
+        Invitation.modules.horizontalScroll || {};
 
-//     //==================================
-//     // Public API
-//     //==================================
+    //==================================
+    // Public API
+    //==================================
 
-//     Invitation.modules.horizontalScroll.init = function () {
+    Invitation.modules.horizontalScroll.init = function () {
 
-//         gsap.registerPlugin(ScrollTrigger);
+        gsap.registerPlugin(ScrollTrigger);
 
-//         const races =
-//             document.querySelector(".races");
+        const races =
+            document.querySelector(".races");
 
-//         if (!races) return;
+        if (!races) return;
 
-//         console.log(races.offsetWidth);
+        console.log(races.offsetWidth);
 
-//         function getScrollAmount() {
+        function getScrollAmount() {
 
-//             const racesWidth =
-//                 races.scrollWidth;
+            const racesWidth =
+                races.scrollWidth;
 
-//             return -(racesWidth - window.innerWidth);
+            return -(racesWidth - window.innerWidth);
 
-//         }
+        }
 
-//         const tl_horizontal =
-//             gsap.timeline();
+        const tl_horizontal =
+            gsap.timeline();
 
-//         tl_horizontal
+        tl_horizontal
 
-//             .to({}, {
-//                 duration: 1
-//             })
+            .to({}, {
+                duration: 1
+            })
 
-//             .to(races, {
-//                 x: getScrollAmount,
-//                 ease: "none",
-//                 duration: 7
-//             })
+            .to(races, {
+                x: getScrollAmount,
+                ease: "none",
+                duration: 7
+            })
 
-//             .to({}, {
-//                 duration: 1
-//             });
+            .to({}, {
+                duration: 1
+            });
 
-//         ScrollTrigger.create({
+        ScrollTrigger.create({
 
-//             trigger: ".horizontal-wrap",
+            trigger: ".horizontal-wrap",
 
-//             start: "top top",
+            start: "top top",
 
-//             end: () => `+=${getScrollAmount() * -1}`,
+            end: () => `+=${getScrollAmount() * -1}`,
 
-//             pin: true,
+            pin: true,
 
-//             scrub: 1,
+            scrub: 1,
 
-//             animation: tl_horizontal,
+            animation: tl_horizontal,
 
-//             invalidateOnRefresh: true,
+            invalidateOnRefresh: true,
 
-//             markers: true
+            markers: true
 
-//         });
+        });
 
-//     };
+    };
 
-// })();
+})();
