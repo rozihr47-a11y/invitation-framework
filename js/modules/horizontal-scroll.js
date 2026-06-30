@@ -16,7 +16,7 @@
 
     Invitation.modules.horizontalScroll.init = function () {
 
-        gsap.registerPlugin(ScrollTrigger);
+        // gsap.registerPlugin(ScrollTrigger);
 
         const races =
             document.querySelector(".races");
@@ -61,13 +61,13 @@
 
             end: () => `+=${getScrollAmount() * -1}`,
 
-            pin: false,
+            pin: true,
 
             scrub: 1,
 
             animation: tl_horizontal,
 
-            invalidateOnRefresh: false,
+            invalidateOnRefresh: true,
 
             markers: true
 
