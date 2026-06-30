@@ -103,6 +103,26 @@ Invitation.modules.horizontalScroll.init = function () {
         duration: 1
     });
 
+    ScrollTrigger.create({
+
+            trigger: ".horizontal-wrap",
+
+            start: "top top",
+
+            end: () => `+=${getScrollAmount() * -1}`,
+
+            pin: true,
+
+            scrub: 1,
+
+            animation: tl_horizontal,
+
+            invalidateOnRefresh: true,
+
+            markers: true
+
+        });
+
 };
 
 })();
