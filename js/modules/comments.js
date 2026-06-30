@@ -6,31 +6,54 @@
     Invitation.modules.comments =
         Invitation.modules.comments || {};
 
-const sheetId = "13xLjhbICv4BGzHm1WCKom9Uof8A15g2axBjzTKbsVi0"; 
-const gid = "234595483";
 
-// Invitation.utils.formatRelativeTime(date)
+//==================================
+// Configuration
+//==================================
 
-// Invitation.utils.escapeHtml(str)
+const config = {
 
-let commentsData = [];
-let optimisticComments = [];
+    sheetId:
+        "13xLjhbICv4BGzHm1WCKom9Uof8A15g2axBjzTKbsVi0",
 
-let lastCommentsFetch = 0;
-const FETCH_COOLDOWN = 60000; // 30 sec
+    gid:
+        "234595483",
 
-let currentPage = 1;
-const commentsPerPage = 10;
+    fetchCooldown:
+        60000,
 
-let hasLoadedMore = false;
+    commentsPerPage:
+        10
 
-let loadMoreObserver = null;
+};
 
-let isKomSecVisible = false;
-let isLoadMoreVisible = false;
+//==================================
+// State
+//==================================
+
+const state = {
+
+    commentsData: [],
+
+    optimisticComments: [],
+
+    currentPage: 1,
+
+    hasLoadedMore: false,
+
+    loadMoreObserver: null,
+
+    isKomSecVisible: false,
+
+    isLoadMoreVisible: false,
+
+    lastCommentsFetch: 0
+
+};
+
 
 async function loadComments() {
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
+  const url = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:json&gid=${config.gid}`;
   try {
     const res = await fetch(url);
     const text = await res.text();
@@ -39,7 +62,7 @@ async function loadComments() {
     let rows = json.table.rows || [];
     rows = rows.reverse();
 
-    commentsData = rows.map(row => {
+    state.commentsData = rows.map(row => {
       const timestampStr = row.c[0]?.f || ""; // timestamp
       const name = row.c[1]?.v || "";          // name
       const association = (row.c[2]?.v || "").trim();   // association
@@ -49,10 +72,10 @@ async function loadComments() {
       return { timestampStr, name, association, comment, response };
     });
 
-    optimisticComments =
-      optimisticComments.filter(opt => {
+    state.optimisticComments =
+      state.optimisticComments.filter(opt => {
     
-        return !commentsData.some(real =>
+        return !state.commentsData.some(real =>
           real.name === opt.name &&
           real.comment === opt.comment
         );
@@ -77,11 +100,11 @@ function renderComments() {
   container.innerHTML = "";
 
   const start = 0;
-  const end = currentPage * commentsPerPage;
+  const end = state.currentPage * config.commentsPerPage;
 
   const mergedComments = [
-    ...optimisticComments,
-    ...commentsData
+    ...state.optimisticComments,
+    ...state.commentsData
   ];
   
   const visibleComments =
@@ -157,12 +180,12 @@ function renderPaginationButtons() {
 
   pagination.innerHTML = "";
 
-  const totalVisible = currentPage * commentsPerPage;
+  const totalVisible = state.currentPage * config.commentsPerPage;
 
 
 
   // LOAD MORE
-  if (totalVisible < commentsData.length) {
+  if (totalVisible < state.commentsData.length) {
 
     const moreBtn = document.createElement("button");
     
@@ -173,9 +196,9 @@ function renderPaginationButtons() {
 
      moreBtn.addEventListener("click", () => {
     
-      currentPage++;
+      state.currentPage++;
     
-      hasLoadedMore = true;
+      state.hasLoadedMore = true;
     
       renderComments();
     
@@ -194,24 +217,24 @@ function observeLoadMoreButton() {
   const btn =
     document.getElementById("loadMoreBtn");
 
-  if (loadMoreObserver) {
-    loadMoreObserver.disconnect();
+  if (state.loadMoreObserver) {
+    state.loadMoreObserver.disconnect();
   }
 
   if (!btn) {
 
-    isLoadMoreVisible = false;
+    state.isLoadMoreVisible = false;
 
     updateFloatingButtons();
 
     return;
   }
 
-  loadMoreObserver =
+  state.loadMoreObserver =
     new IntersectionObserver(
       ([entry]) => {
 
-        isLoadMoreVisible =
+        state.isLoadMoreVisible =
           entry.isIntersecting;
 
         updateFloatingButtons();
@@ -222,7 +245,7 @@ function observeLoadMoreButton() {
       }
     );
 
-  loadMoreObserver.observe(btn);
+  state.loadMoreObserver.observe(btn);
 }
 
 function updateFloatingButtons() {
@@ -239,17 +262,17 @@ function updateFloatingButtons() {
 
   wishBtn.classList.toggle(
     "visible",
-    isKomSecVisible &&
-    !isLoadMoreVisible
+    state.isKomSecVisible &&
+    !state.isLoadMoreVisible
   );
 
   // SHOW LESS
 
   lessBtn.classList.toggle(
     "visible",
-    hasLoadedMore &&
-    isKomSecVisible &&
-    !isLoadMoreVisible
+    state.hasLoadedMore &&
+    state.isKomSecVisible &&
+    !state.isLoadMoreVisible
   );
 
 }
@@ -275,11 +298,11 @@ function startCommentsPolling() {
   const now = Date.now();
 
   if (
-    now - lastCommentsFetch >
-    FETCH_COOLDOWN
+    now - state.lastCommentsFetch >
+    config.fetchCooldown
   ) {
 
-    lastCommentsFetch = now;
+    state.lastCommentsFetch = now;
 
     loadComments();
 
@@ -300,15 +323,15 @@ function stopCommentsPolling() {
 
 Invitation.dom.floatingShowLess.addEventListener("click", () => {
 
-    currentPage = 1;
+    state.currentPage = 1;
     
-    hasLoadedMore = false;
+    state.hasLoadedMore = false;
     
-    isLoadMoreVisible = false;
+    state.isLoadMoreVisible = false;
 
     
-    if (loadMoreObserver) {
-      loadMoreObserver.disconnect();
+    if (state.loadMoreObserver) {
+      state.loadMoreObserver.disconnect();
     }
 
     renderComments();
@@ -330,7 +353,7 @@ Invitation.dom.floatingShowLess.addEventListener("click", () => {
 const komSecObserver = new IntersectionObserver(
   ([entry]) => {
 
-      isKomSecVisible =
+      state.isKomSecVisible =
         entry.isIntersecting;
 
       updateFloatingButtons();
@@ -357,6 +380,28 @@ ScrollTrigger.create({
   onLeave: stopCommentsPolling,
   onLeaveBack: stopCommentsPolling
 });
+
+};
+
+Invitation.modules.comments.refresh = function () {
+
+    loadComments();
+
+};
+
+Invitation.modules.comments.destroy = function () {
+
+    if (state.loadMoreObserver) {
+
+        state.loadMoreObserver.disconnect();
+
+    }
+
+};
+
+Invitation.modules.comments.render = function () {
+
+    renderComments();
 
 };
 
