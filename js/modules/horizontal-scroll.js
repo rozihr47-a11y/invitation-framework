@@ -87,6 +87,16 @@ Invitation.modules.horizontalScroll.init = function () {
 
     console.log(races.offsetWidth);
 
+
+        function getScrollAmount() {
+
+            const racesWidth =
+                races.scrollWidth;
+
+            return -(racesWidth - window.innerWidth);
+
+        }
+
     const tl_horizontal = gsap.timeline();
 
     tl_horizontal
@@ -122,6 +132,8 @@ Invitation.modules.horizontalScroll.init = function () {
             markers: true
 
         });
+
+
 
 };
 
