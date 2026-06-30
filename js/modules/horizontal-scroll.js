@@ -14,81 +14,20 @@
     // Public API
     //==================================
 
-    // Invitation.modules.horizontalScroll.init = function () {
+    Invitation.modules.horizontalScroll.init = function () {
 
-    //     // gsap.registerPlugin(ScrollTrigger);
+        gsap.registerPlugin(ScrollTrigger);
 
-    //     const races =
-    //         document.querySelector(".races");
+        const races =
+            document.querySelector(".races");
 
-    //     if (!races) return;
+        if (!races) return;
 
-    //     console.log(races.offsetWidth);
-
-    //     function getScrollAmount() {
-
-    //         const racesWidth =
-    //             races.scrollWidth;
-
-    //         return -(racesWidth - window.innerWidth);
-
-    //     }
-
-    //     const tl_horizontal =
-    //         gsap.timeline();
-
-    //     tl_horizontal
-
-    //         .to({}, {
-    //             duration: 1
-    //         })
-
-    //         .to(races, {
-    //             x: getScrollAmount,
-    //             ease: "none",
-    //             duration: 7
-    //         })
-
-    //         .to({}, {
-    //             duration: 1
-    //         });
-
-    //     ScrollTrigger.create({
-
-    //         trigger: ".horizontal-wrap",
-
-    //         start: "top top",
-
-    //         end: () => `+=${getScrollAmount() * -1}`,
-
-    //         pin: true,
-
-    //         scrub: 1,
-
-    //         animation: tl_horizontal,
-
-    //         invalidateOnRefresh: true,
-
-    //         markers: true
-
-    //     });
-
-    // };
-
-Invitation.modules.horizontalScroll.init = function () {
-
-    console.log("Horizontal init");
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const races = document.querySelector(".races");
-
-    if (!races) return;
-
-    console.log(races.offsetWidth);
-
+        console.log(races.offsetWidth);
 
         function getScrollAmount() {
+
+            console.log("getScrollAmount called");
 
             const racesWidth =
                 races.scrollWidth;
@@ -97,23 +36,26 @@ Invitation.modules.horizontalScroll.init = function () {
 
         }
 
-    const tl_horizontal = gsap.timeline();
+        const tl_horizontal =
+            gsap.timeline();
 
-    tl_horizontal
-    
-    .to({}, { duration: 1 })
+        tl_horizontal
 
-    .to(races, {
-        x: getScrollAmount,
-        ease: "none",
-        duration: 7,
-    })
+            .to({}, {
+                duration: 1
+            })
 
-    .to({}, {
-        duration: 1
-    });
+            .to(races, {
+                x: getScrollAmount,
+                ease: "none",
+                duration: 7
+            })
 
-    ScrollTrigger.create({
+            .to({}, {
+                duration: 1
+            });
+
+        ScrollTrigger.create({
 
             trigger: ".horizontal-wrap",
 
@@ -133,8 +75,6 @@ Invitation.modules.horizontalScroll.init = function () {
 
         });
 
-
-
-};
+    };
 
 })();
