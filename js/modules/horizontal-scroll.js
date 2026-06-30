@@ -61,7 +61,7 @@
 
             end: () => `+=${getScrollAmount() * -1}`,
 
-            pin: true,
+            pin: false,
 
             scrub: 1,
 
