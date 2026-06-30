@@ -46,7 +46,7 @@
             })
 
             .to(races, {
-                x: getScrollAmount,
+                x: -100,
                 ease: "none",
                 duration: 7
             })
@@ -61,7 +61,7 @@
 
             start: "top top",
 
-            end: () => `+=${getScrollAmount() * -1}`,
+            end: "+=1000",
 
             pin: true,
 
