@@ -79,6 +79,8 @@ Invitation.modules.horizontalScroll.init = function () {
 
     console.log("Horizontal init");
 
+    gsap.registerPlugin(ScrollTrigger);
+
 };
 
 })();
