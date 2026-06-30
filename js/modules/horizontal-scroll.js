@@ -67,7 +67,7 @@
 
             animation: tl_horizontal,
 
-            invalidateOnRefresh: true,
+            invalidateOnRefresh: false,
 
             markers: true
 
