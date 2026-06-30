@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function startInvitation() {
 
     window.Invitation.init();
 
@@ -14,4 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
         window.Invitation.modules.popover.init();
     }
 
-});
+    if (window.Invitation.modules.gallery?.init) {
+        window.Invitation.modules.gallery.init();
+    }
+
+}
+
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        startInvitation
+    );
+
+} else {
+
+    startInvitation();
+
+}
