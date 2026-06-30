@@ -89,6 +89,20 @@ Invitation.modules.horizontalScroll.init = function () {
 
     const tl_horizontal = gsap.timeline();
 
+    tl_horizontal
+    
+    .to({}, { duration: 1 })
+
+    .to(races, {
+        x: getScrollAmount,
+        ease: "none",
+        duration: 7,
+    })
+
+    .to({}, {
+        duration: 1
+    });
+
 };
 
 })();
