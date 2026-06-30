@@ -33,8 +33,23 @@
 
         this.floatingShowLess =
             document.getElementById("floatingShowLess");
-            
 
+        // =========================
+        // Calendar
+        // =========================
+
+        this.calendarWidget =
+            document.querySelector(".add-to-calendar");
+
+        this.calendarButton =
+            this.calendarWidget?.querySelector(".atc-btn");
+
+        this.googleCalendar =
+            this.calendarWidget?.querySelector(".google-cal");
+
+        this.appleCalendar =
+            this.calendarWidget?.querySelector(".apple-cal");
+            
     };
 
 })();
