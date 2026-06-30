@@ -10,4 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.Invitation.modules.calendar.init();
     }
 
+    if (window.Invitation.modules.popover?.init) {
+        window.Invitation.modules.popover.init();
+    }
+
 });

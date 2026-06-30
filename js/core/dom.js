@@ -49,6 +49,13 @@
 
         this.appleCalendar =
             this.calendarWidget?.querySelector(".apple-cal");
+
+        // =========================
+        // Popover
+        // =========================
+
+        this.popover =
+            document.querySelector("[popover]");
             
     };
 
