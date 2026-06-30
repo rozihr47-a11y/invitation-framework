@@ -1,10 +1,10 @@
     
-(function () {
+// (function () {
 
-    const Invitation = window.Invitation;
+//     const Invitation = window.Invitation;
 
-    Invitation.modules.comments =
-        Invitation.modules.comments || {};
+//     Invitation.modules.comments =
+//         Invitation.modules.comments || {};
 
 const sheetId = "13xLjhbICv4BGzHm1WCKom9Uof8A15g2axBjzTKbsVi0"; 
 const gid = "234595483";
@@ -360,4 +360,4 @@ ScrollTrigger.create({
 
 });
 
-})();
+// })();
