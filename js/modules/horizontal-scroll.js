@@ -25,7 +25,7 @@
 
         console.log(races.offsetWidth);
 
-        function getScrollAmount() {
+        function ScrollAmount() {
 
             console.log("getScrollAmount called");
 
