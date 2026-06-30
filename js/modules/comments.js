@@ -1,17 +1,17 @@
     
-// (function () {
+(function () {
 
-//     const Invitation = window.Invitation;
+    const Invitation = window.Invitation;
 
-//     Invitation.modules.comments =
-//         Invitation.modules.comments || {};
+    Invitation.modules.comments =
+        Invitation.modules.comments || {};
 
 const sheetId = "13xLjhbICv4BGzHm1WCKom9Uof8A15g2axBjzTKbsVi0"; 
 const gid = "234595483";
 
-Invitation.utils.formatRelativeTime(date)
+// Invitation.utils.formatRelativeTime(date)
 
-Invitation.utils.escapeHtml(str)
+// Invitation.utils.escapeHtml(str)
 
 let commentsData = [];
 let optimisticComments = [];
@@ -254,7 +254,7 @@ function updateFloatingButtons() {
 
 }
 
-window.addEventListener("load", () => {
+Invitation.modules.comments.init = function () {
 
 let commentInterval = null;
 
@@ -358,6 +358,6 @@ ScrollTrigger.create({
   onLeaveBack: stopCommentsPolling
 });
 
-});
+};
 
-// })();
+})();
