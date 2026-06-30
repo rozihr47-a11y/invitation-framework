@@ -16,6 +16,8 @@
 
     Invitation.modules.gallery.init = function () {
 
+        console.log("Gallery init");
+
         const lightbox = GLightbox({
   selector: '.glightbox',
 
