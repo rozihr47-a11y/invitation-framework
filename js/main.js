@@ -18,9 +18,9 @@ function startInvitation() {
         window.Invitation.modules.gallery.init();
     }
 
-    if (window.Invitation.modules.horizontalScroll?.init) {
-        window.Invitation.modules.horizontalScroll.init();
-    }
+    // if (window.Invitation.modules.horizontalScroll?.init) {
+    //     window.Invitation.modules.horizontalScroll.init();
+    // }
 
 }
 
