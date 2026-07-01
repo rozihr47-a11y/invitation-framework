@@ -1,4 +1,4 @@
-function startInvitation() {
+// function startInvitation() {
 
     window.Invitation.init();
 
@@ -22,17 +22,4 @@ function startInvitation() {
         window.Invitation.modules.horizontalScroll.init();
     }
 
-}
-
-if (document.readyState === "loading") {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        startInvitation
-    );
-
-} else {
-
-    startInvitation();
-
-}
+// }

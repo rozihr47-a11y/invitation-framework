@@ -18,63 +18,100 @@
 
         gsap.registerPlugin(ScrollTrigger);
 
-        const races =
-            document.querySelector(".races");
+        console.log(
+    "ScrollY:",
+    window.scrollY,
+    "Ready:",
+    document.readyState
+);
 
-        if (!races) return;
+        const races = document.querySelector(".races");
+        console.log(races.offsetWidth)
 
-        console.log(races.offsetWidth);
-
-        function ScrollAcara () {
-
-            console.log("getScrollAmount called");
-
-            const racesWidth =
-                races.scrollWidth;
-
+        function getScrollAmount() {
+            let racesWidth = races.scrollWidth;
             return -(racesWidth - window.innerWidth);
-
         }
 
-        const tl_horizontal =
-            gsap.timeline();
+        const tl_horizontal = gsap.timeline();
 
-        tl_horizontal
+        tl_horizontal.to({}, { duration: 1 }) // fake delay
 
-            .to({}, {
-                duration: 1
-            })
+        .to(races, {
+        x: getScrollAmount,
+        ease: "none",
+        duration: 7,
+        })
 
-            .to(races, {
-                x: -100,
-                ease: "none",
-                duration: 7
-            })
-
-            .to({}, {
-                duration: 1
-            });
+        .to({}, { duration: 1 });
 
         ScrollTrigger.create({
-
             trigger: ".horizontal-wrap",
-
             start: "top top",
-
-            end: "+=1000",
-
+            end: () => `+=${getScrollAmount() * -1}`,
             pin: true,
-
             scrub: 1,
-
             animation: tl_horizontal,
-
             invalidateOnRefresh: true,
-
-            markers: true
-
+            markers: false,
         });
+
+    //     setTimeout(() => {
+
+    //         ScrollTrigger.create({
+
+    //                     trigger: ".horizontal-wrap",
+
+    //                     start: "top top",
+
+    //                     end: () => `+=${Math.abs(getScrollAmount())}`,
+
+    //                     pin: true,
+
+    //                     scrub: 1,
+
+    //                     animation: tl_horizontal,
+
+    //                     invalidateOnRefresh: true,
+
+    //                     markers: true
+
+    //                 });
+
+    //    }, 100);
 
     };
 
 })();
+
+// (function () {
+
+//     const Invitation = window.Invitation;
+
+//     Invitation.modules.horizontalTest = {};
+
+//     Invitation.modules.horizontalTest.init = function () {
+
+//         console.log("Horizontal Test");
+
+//         ScrollTrigger.create({
+
+//             trigger: ".horizontal-wrap",
+
+//             start: "top top",
+
+//             end: "+=1000",
+
+//             scrub: true,
+
+//             pin: true,
+
+//             animation: gsap.timeline(),
+
+//             markers: true
+
+//         });
+
+//     };
+
+// })();

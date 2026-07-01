@@ -6,7 +6,7 @@
 (function () {
 
     if (window.Invitation) {
-        console.warn("Invitation Framework already initialized.");
+        console.trace("Invitation Framework already initialized.");
         return;
     }
 
