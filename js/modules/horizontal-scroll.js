@@ -18,15 +18,7 @@
 
         gsap.registerPlugin(ScrollTrigger);
 
-        console.log(
-    "ScrollY:",
-    window.scrollY,
-    "Ready:",
-    document.readyState
-);
-
         const races = document.querySelector(".races");
-        console.log(races.offsetWidth)
 
         function getScrollAmount() {
             let racesWidth = races.scrollWidth;
@@ -56,62 +48,6 @@
             markers: false,
         });
 
-    //     setTimeout(() => {
-
-    //         ScrollTrigger.create({
-
-    //                     trigger: ".horizontal-wrap",
-
-    //                     start: "top top",
-
-    //                     end: () => `+=${Math.abs(getScrollAmount())}`,
-
-    //                     pin: true,
-
-    //                     scrub: 1,
-
-    //                     animation: tl_horizontal,
-
-    //                     invalidateOnRefresh: true,
-
-    //                     markers: true
-
-    //                 });
-
-    //    }, 100);
-
     };
 
 })();
-
-// (function () {
-
-//     const Invitation = window.Invitation;
-
-//     Invitation.modules.horizontalTest = {};
-
-//     Invitation.modules.horizontalTest.init = function () {
-
-//         console.log("Horizontal Test");
-
-//         ScrollTrigger.create({
-
-//             trigger: ".horizontal-wrap",
-
-//             start: "top top",
-
-//             end: "+=1000",
-
-//             scrub: true,
-
-//             pin: true,
-
-//             animation: gsap.timeline(),
-
-//             markers: true
-
-//         });
-
-//     };
-
-// })();
