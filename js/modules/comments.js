@@ -281,17 +281,6 @@ Invitation.modules.comments.init = function () {
 
 let commentInterval = null;
 
-// function startCommentsPolling() {
-//   if (commentInterval) return;
-
-//   loadComments();
-
-//   // commentInterval = setInterval(() => {
-//   //   loadComments();
-//   // }, 30000);
-
-//   console.log("Comments polling START");
-// }
 
 function startCommentsPolling() {
 

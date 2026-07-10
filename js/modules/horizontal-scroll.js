@@ -1,53 +1,68 @@
 /**
  * Invitation Framework
- * Horizontal Scroll Module
+ * Horizontal Scroll Module (With Speed Control)
  */
-
 (function () {
-
-    const Invitation = window.Invitation;
-
-    Invitation.modules.horizontalScroll =
-        Invitation.modules.horizontalScroll || {};
-
-    //==================================
-    // Public API
-    //==================================
+    const Invitation = window.Invitation || { modules: {} };
+    Invitation.modules.horizontalScroll = Invitation.modules.horizontalScroll || {};
 
     Invitation.modules.horizontalScroll.init = function () {
-
         gsap.registerPlugin(ScrollTrigger);
 
         const races = document.querySelector(".races");
+        const scrollTrack = document.querySelector(".scroll-track");
 
-        function getScrollAmount() {
-            let racesWidth = races.scrollWidth;
-            return -(racesWidth - window.innerWidth);
-        }
+        if (!races || !scrollTrack) return; 
 
-        const tl_horizontal = gsap.timeline();
+        // --- SPEED CONTROL ---
+        // 1 = Normal (1px scrolled down = 1px moved left)
+        // 2 = Slower (Requires twice as much vertical scrolling)
+        // 0.5 = Faster (Requires half as much vertical scrolling)
+        const speedMultiplier = 1.5; 
+        
+        const getScrollAmount = () => races.scrollWidth - window.innerWidth;
 
-        tl_horizontal.to({}, { duration: 1 }) // fake delay
+        const syncTrackHeight = () => {
+            const scrollAmount = getScrollAmount();
+            if (scrollAmount > 0) {
+                // We multiply the scrollAmount by our speed variable
+                scrollTrack.style.height = `${(scrollAmount * speedMultiplier) + window.innerHeight}px`;
+            } else {
+                scrollTrack.style.height = "100vh";
+            }
+        };
 
-        .to(races, {
-        x: getScrollAmount,
-        ease: "none",
-        duration: 7,
-        })
+        syncTrackHeight();
 
-        .to({}, { duration: 1 });
-
-        ScrollTrigger.create({
-            trigger: ".horizontal-wrap",
-            start: "top top",
-            end: () => `+=${getScrollAmount() * -1}`,
-            pin: true,
-            scrub: 1,
-            animation: tl_horizontal,
-            invalidateOnRefresh: true,
-            markers: false,
+        gsap.to(races, {
+            x: () => -getScrollAmount(), 
+            ease: "none",
+            scrollTrigger: {
+                trigger: scrollTrack,
+                start: "5% top",
+                end: "90% bottom", 
+                scrub: 1, // Keep this at 1 for visual smoothness, it does NOT control overall speed
+                invalidateOnRefresh: true,
+                markers: false
+            }
         });
 
-    };
+        const resizeObserver = new ResizeObserver(() => {
+            syncTrackHeight();       
+            ScrollTrigger.refresh(); 
+        });
+        
+        resizeObserver.observe(races);
 
+        let timeout;
+        window.addEventListener("resize", () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                syncTrackHeight();
+                ScrollTrigger.refresh();
+            }, 100);
+        });
+    };
+    
+    // Invitation.modules.horizontalScroll.init();
 })();

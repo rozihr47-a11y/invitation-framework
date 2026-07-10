@@ -52,7 +52,7 @@
                 initialized = true;
 
                        const rect = container.getBoundingClientRect();
-                        const dpr  = Math.min(window.devicePixelRatio, 1.5);
+                        const dpr  = Math.min(window.devicePixelRatio, 1.3);
 
                         canvas.width  = rect.width  * dpr;
                         canvas.height = rect.height * dpr;
@@ -144,6 +144,7 @@
                         ScrollTrigger.create({
                             trigger: ".nextSect_wraper",
                             start: "top top",
+                            // markers: true,
 
                             onEnter: () => {
                                 flowersPaused = true;
