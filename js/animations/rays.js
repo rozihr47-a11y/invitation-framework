@@ -15,7 +15,7 @@ function buildRays() {
   }
 }
 
-// buildRays(); // call immediately with the rest of your DOM setup
+buildRays(); // call immediately with the rest of your DOM setup
 
 
 
