@@ -32,16 +32,6 @@ Invitation.effects.loveStory.init = function () {
     // ═══════════════════════════════════════════════════
     const isMobile = window.innerWidth < 768;
 
-    const isLowEnd = (
-    isMobile &&
-    (
-        navigator.hardwareConcurrency <= 4 ||  // weak CPU
-        window.devicePixelRatio <= 1 ||        // usually cheaper devices
-        /Android/i.test(navigator.userAgent)   // Android tends to struggle more
-    )
-    );
-
-
     // ==================================================
     // DOM Cache
     // ==================================================
@@ -60,10 +50,13 @@ Invitation.effects.loveStory.init = function () {
 
     };
 
-    const QUALITY = isLowEnd ? "low" : "high";
+    // Use the centralized quality manager.
+    // Love Story only has 'low' and 'high', so 'mid' tier from the manager defaults to 'high'.
+    const tier = Invitation.utils.getQualityTier();
+    const QUALITY = tier === "low" ? "low" : "high";
     // Step 1: Set a reasonable DPR for a good performance baseline.
     // const DPR = Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2);
-       const DPR = Math.min(window.devicePixelRatio, isMobile ? 1.6 : 2);
+       const DPR = Math.min(window.devicePixelRatio, isMobile ? 1.3 : 1.5);
 
     // const canvas = document.getElementById('three-canvas');
     const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -157,7 +150,7 @@ Invitation.effects.loveStory.init = function () {
     // ─────────────────────────────────────────────────
     let particles = null;
     function createParticles() {
-        const PARTICLE_COUNT = QUALITY === "low" ? 600 : 3000;
+        const PARTICLE_COUNT = QUALITY === "low" ? 450 : 1000;
         const pPos = new Float32Array(PARTICLE_COUNT * 3);
         const pSz  = new Float32Array(PARTICLE_COUNT);
 
@@ -253,17 +246,17 @@ Invitation.effects.loveStory.init = function () {
 
     const IMAGE_DATA = [
     {
-        src: 'https://images.unsplash.com/photo-1546032996-6dfacbacbf3f?q=80&w=500',
+        src: window.imageLoveStory1,
         position: new THREE.Vector3(-2.8, 0, -8), // between panel 1 & 2
         scale: new THREE.Vector2(6.7, 10),
     },
     {
-        src: 'https://images.unsplash.com/photo-1679599441274-6dcac44dba0a?q=80&w=500',
+        src: window.imageLoveStory2,
         position: new THREE.Vector3(-2.8, 0, -45), // between panel 2 & 3
         scale: new THREE.Vector2(6.7, 10),
     },
     {
-        src: 'https://plus.unsplash.com/premium_photo-1663100824732-883a1b063bc8?q=80&w=600',
+        src: window.imageLoveStory3,
         position: new THREE.Vector3(-2.8, -0.7, -78), // after panel 3
         scale: new THREE.Vector2(10, 6),
     }
@@ -279,7 +272,7 @@ Invitation.effects.loveStory.init = function () {
     function buildTextCanvas({ lines, label, accent }) {
     // Step 2: Implement "Texture Oversampling" for sharp text on a low-DPR canvas.
     // We render the canvas at a higher resolution, and the GPU's downsampling preserves sharpness.
-    const SHARPNESS_FACTOR = 2;
+    const SHARPNESS_FACTOR = 1.5;
 
     const W = 1050 * SHARPNESS_FACTOR;
     const H = 650 * SHARPNESS_FACTOR;
@@ -397,14 +390,12 @@ Invitation.effects.loveStory.init = function () {
     });
     }
 
-    function buildImagePanel({ src, position, scale }) {
-    const texture = new THREE.TextureLoader().load(src);
-
-    texture.colorSpace = THREE.SRGBColorSpace;
-
-    const geo = new THREE.PlaneGeometry(scale.x, scale.y);
-
-    const mat = new THREE.ShaderMaterial({
+    function buildImagePanel({ position, scale }, texture) {
+        texture.colorSpace = THREE.SRGBColorSpace;
+    
+        const geo = new THREE.PlaneGeometry(scale.x, scale.y);
+    
+        const mat = new THREE.ShaderMaterial({
         uniforms: {
         uTex: { value: texture },
         uAlpha: { value: 0 }
@@ -435,18 +426,21 @@ Invitation.effects.loveStory.init = function () {
         transparent: true,
         depthWrite: false
     });
-
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(position);
-
-    scene.add(mesh);
-    return mesh;
+    
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.copy(position);
+    
+        scene.add(mesh);
+        return mesh;
     }
 
     let imagePanels = [];
 
-    function createImagePanels() {
-    imagePanels = IMAGE_DATA.map(d => buildImagePanel(d));
+    async function createImagePanels() {
+        const loader = new THREE.TextureLoader();
+        const texturePromises = IMAGE_DATA.map(data => new Promise(resolve => loader.load(data.src, resolve)));
+        const textures = await Promise.all(texturePromises);
+        imagePanels = IMAGE_DATA.map((data, i) => buildImagePanel(data, textures[i]));
     }
 
     // ─────────────────────────────────────────────────
@@ -591,6 +585,9 @@ Invitation.effects.loveStory.init = function () {
 
     function createRibbonMaterial() {
     return new THREE.ShaderMaterial({
+        defines: {
+            IS_LOW_QUALITY: QUALITY === 'low',
+        },
         uniforms: {
         uTime: { value: 0 },
         uScroll: { value: 0 },
@@ -636,11 +633,19 @@ Invitation.effects.loveStory.init = function () {
 
     // glow
     float glow = smoothstep(1.2, 0.0, dist);
-    glow *= glow;
-    glow *= glow;
-    glow *= glow; // ~pow(x,4) but cheaper
-    glow *= glow; // ~pow(x,4) but cheaper
 
+    #ifdef IS_LOW_QUALITY
+        // A much cheaper, but still pleasant glow for mobile. ~pow(glow, 4)
+        // This is 75% cheaper than the high quality version.
+        glow *= glow;
+        glow *= glow;
+    #else
+        // The original cinematic, but expensive glow. ~pow(glow, 16)
+        glow *= glow;
+        // glow *= glow;
+        // glow *= glow;
+        // glow *= glow;
+    #endif
     // ─────────────────────────────
     // ⚡ Pulse (cheap but effective)
     // ─────────────────────────────
@@ -754,8 +759,8 @@ Invitation.effects.loveStory.init = function () {
     function createRibbon() {
     const ribbonGeo = createRibbonStrip(
         mainCurve,
-        isLowEnd ? 0.4 : 0.6,
-        isLowEnd ? 250 : 300,
+        QUALITY === 'low' ? 0.2 : 0.2,
+        QUALITY === 'low' ? 250 : 300,
         1
     );
 
@@ -865,9 +870,9 @@ Invitation.effects.loveStory.init = function () {
         start: "top top",
         end: "bottom bottom",
         scrub: true,
-        // pin: true,
+        // pin: true, // Pinning is handled by the parent container's CSS
         // pinSpacing: false,
-        // markers: true,
+        // markers: true, // Removed for production
         // anticipatePin: 1
     }
     });
@@ -1068,44 +1073,70 @@ Invitation.effects.loveStory.init = function () {
     );
         
     let assetsInitialized = false;
-    let prewarmST = null; // To hold our pre-warming trigger
+    let initializationPromise = null;
 
-    // This function now contains the expensive, blocking operations.
     function initializeAssets() {
-        if (assetsInitialized) return;
-        assetsInitialized = true;
-        createPanels();
-        createImagePanels();
-        createRibbon();
-        createParticles();
-    }
+        // If initialization is already in progress or done, return the existing promise
+        if (initializationPromise) return initializationPromise;
 
+        // Start the async initialization process
+        initializationPromise = (async () => {
+            // Use Promise.all to load fonts and images concurrently
+            await Promise.all([
+                createPanels(),
+                createImagePanels()
+            ]);
+
+            // These are synchronous and fast, can run after async assets are ready
+            createRibbon();
+            createParticles();
+
+            // "Warm up" the renderer by doing one render pass.
+            // This compiles shaders and uploads textures to the GPU.
+            renderer.render(scene, camera);
+
+            assetsInitialized = true;
+            console.log("Love Story assets initialized and pre-warmed.");
+        })();
+
+        return initializationPromise;
+    }
+    
     const storyST = ScrollTrigger.create({
         trigger: "#loveStoryTrack",
         start: "-50% top",
         endTrigger: ".afterStory",
         end: "bottom top",
-        markers: true,
 
-        // These callbacks now only handle starting/stopping the render loop
         onEnter: () => {
-            initializeAssets(); // Failsafe in case pre-warming didn't run
-            isRendering = true;
-            animate();
+            // Ensure assets are fully loaded, then start the render loop
+            initializeAssets().then(() => {
+                if (!isRendering) {
+                    isRendering = true;
+                    animate();
+                }
+            });
         },
         onLeave: () => { isRendering = false; },
-        onEnterBack: () => { isRendering = true; animate(); },
+        onEnterBack: () => {
+            initializeAssets().then(() => {
+                if (!isRendering) {
+                    isRendering = true;
+                    animate();
+                }
+            });
+        },
         onLeaveBack: () => { isRendering = false; },
     });
 
     // This new, separate trigger pre-warms assets to prevent stutter.
-    prewarmST = ScrollTrigger.create({
+    const prewarmST = ScrollTrigger.create({
         trigger: "#loveStoryTrack",
         start: "top bottom", // Fires as soon as the section enters the viewport
         once: true,          // Only runs once
         onEnter: () => {
-            // Use a small timeout to avoid blocking the scroll event itself
-            setTimeout(initializeAssets, 50);
+            // Kick off the asset loading process early. We don't need to wait for it here.
+            initializeAssets();
         }
     });
 
@@ -1113,16 +1144,9 @@ Invitation.effects.loveStory.init = function () {
     // ─────────────────────────────────────────────────
     // TOUCH SCROLL
     // ─────────────────────────────────────────────────
-    let touchStart = 0, touchScrollSim = 0;
-    window.addEventListener('touchstart', e => { touchStart = e.touches[0].clientY; }, { passive: true });
-    window.addEventListener('touchmove', e => {
-    const dy = touchStart - e.touches[0].clientY;
-    const container = dom.experience;
-    const maxScroll = container.offsetHeight - window.innerHeight;
-    touchScrollSim = Math.max(0, Math.min(1, touchScrollSim + dy / (window.innerHeight * 5)));
-    touchStart = e.touches[0].clientY;
-    window.scrollTo(0, container.offsetTop + touchScrollSim * maxScroll);
-    }, { passive: true });
+    // The custom touch scroll handler has been removed.
+    // GSAP's ScrollTrigger provides smooth scrubbing on touch devices out of the box,
+    // and removing the manual handler prevents conflicts with the browser's native scrolling.
 
     // ─────────────────────────────────────────────────
     // RESIZE
@@ -1185,19 +1209,8 @@ Invitation.effects.loveStory.init = function () {
         renderer.forceContextLoss();
         renderer.dispose();
         storyST.kill();
-        if (prewarmST) prewarmST.kill(); // Clean up the new trigger
-        // afterStoryST.kill();
+        prewarmST.kill();
         window.removeEventListener("resize", resizeRenderer);
-
-        window.removeEventListener('touchstart', e => { touchStart = e.touches[0].clientY; }, { passive: true });
-        window.removeEventListener('touchmove', e => {
-        const dy = touchStart - e.touches[0].clientY;
-        const container = dom.experience;
-        const maxScroll = container.offsetHeight - window.innerHeight;
-        touchScrollSim = Math.max(0, Math.min(1, touchScrollSim + dy / (window.innerHeight * 5)));
-        touchStart = e.touches[0].clientY;
-        window.scrollTo(0, container.offsetTop + touchScrollSim * maxScroll);
-        }, { passive: true });
 
     }
 
