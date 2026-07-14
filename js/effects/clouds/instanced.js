@@ -1,16 +1,16 @@
-(function(){
+(function () {
 
-const Invitation = window.Invitation;
+    const Invitation = window.Invitation;
 
-Invitation.effects =
-    Invitation.effects || {};
+    Invitation.effects =
+        Invitation.effects || {};
 
-Invitation.effects.clouds =
-    Invitation.effects.clouds || {};
+    Invitation.effects.clouds =
+        Invitation.effects.clouds || {};
 
-Invitation.effects.clouds.instanced = {};
+    Invitation.effects.clouds.instanced = {};
 
-Invitation.effects.clouds.instanced.init = function(THREE){
+    Invitation.effects.clouds.instanced.init = function (THREE) {
 
         // const THREE = window.__THREE__;
         if (!THREE) return;
@@ -53,8 +53,11 @@ Invitation.effects.clouds.instanced.init = function(THREE){
         container.appendChild(renderer.domElement);
 
         function resize() {
-            const w = innerWidth;
-            const h = innerHeight;
+            // const w = innerWidth;
+            // const h = innerHeight;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
             renderer.setSize(w, h, false);
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -94,7 +97,7 @@ Invitation.effects.clouds.instanced.init = function(THREE){
             depthWrite: false,
             depthTest: true,
             uniforms,
-        vertexShader: `
+            vertexShader: `
         varying vec2 vUv;
         varying float vY;
 
@@ -211,27 +214,27 @@ Invitation.effects.clouds.instanced.init = function(THREE){
         const dummy = new THREE.Object3D();
 
         function createInstancedClouds(offsetZ = 0) {
-        const mesh = new THREE.InstancedMesh(geometry, material, CLOUD_COUNT);
+            const mesh = new THREE.InstancedMesh(geometry, material, CLOUD_COUNT);
 
-        for (let i = 0; i < CLOUD_COUNT; i++) {
-            const x = Math.random() * X_RANGE + CLOUD_MIN_X;
-            const y = -Math.random() * Math.random() * 220 - 20;
-            const z = i + offsetZ;
+            for (let i = 0; i < CLOUD_COUNT; i++) {
+                const x = Math.random() * X_RANGE + CLOUD_MIN_X;
+                const y = -Math.random() * Math.random() * 220 - 20;
+                const z = i + offsetZ;
 
-            const scale = Math.random() * Math.random() * 1.6 + 0.6;
-            const rotZ = Math.random() * Math.PI;
+                const scale = Math.random() * Math.random() * 1.6 + 0.6;
+                const rotZ = Math.random() * Math.PI;
 
-            dummy.position.set(x, y, z);
-            dummy.rotation.set(0, 0, rotZ);
-            dummy.scale.setScalar(scale);
+                dummy.position.set(x, y, z);
+                dummy.rotation.set(0, 0, rotZ);
+                dummy.scale.setScalar(scale);
 
-            dummy.updateMatrix();
-            mesh.setMatrixAt(i, dummy.matrix);
-        }
+                dummy.updateMatrix();
+                mesh.setMatrixAt(i, dummy.matrix);
+            }
 
-        mesh.instanceMatrix.needsUpdate = true;
+            mesh.instanceMatrix.needsUpdate = true;
 
-        return mesh;
+            return mesh;
         }
 
         // create TWO looping layers (same as before)
@@ -250,8 +253,8 @@ Invitation.effects.clouds.instanced.init = function(THREE){
         scene.add(cloudGroup, cloudGroup2);
 
         function resetXLoopPositions() {
-        cloudGroup.position.x = 0;
-        cloudGroup2.position.x = -X_RANGE;
+            cloudGroup.position.x = 0;
+            cloudGroup2.position.x = -X_RANGE;
         }
 
         resetXLoopPositions();
@@ -265,28 +268,28 @@ Invitation.effects.clouds.instanced.init = function(THREE){
         let isPaused = false;
 
         function animate() {
-        requestAnimationFrame(animate);
+            requestAnimationFrame(animate);
 
-        if (isPaused) {
+            if (isPaused) {
+                renderer.render(scene, camera);
+                return;
+            }
+
+            // Cap delta to prevent large jumps if tab is backgrounded or on major frame drops
+            const delta = Math.min(clock.getDelta(), 0.1) * 60;
+            const move = delta * 0.12;
+
+            cloudGroup.position.x += move;
+            cloudGroup2.position.x += move;
+
+            if (cloudGroup.position.x >= X_RANGE) {
+                cloudGroup.position.x = cloudGroup2.position.x - X_RANGE;
+            }
+            if (cloudGroup2.position.x >= X_RANGE) {
+                cloudGroup2.position.x = cloudGroup.position.x - X_RANGE;
+            }
+
             renderer.render(scene, camera);
-            return;
-        }
-
-        // Cap delta to prevent large jumps if tab is backgrounded or on major frame drops
-        const delta = Math.min(clock.getDelta(), 0.1) * 60;
-        const move = delta * 0.12;
-
-        cloudGroup.position.x += move;
-        cloudGroup2.position.x += move;
-
-        if (cloudGroup.position.x >= X_RANGE) {
-            cloudGroup.position.x = cloudGroup2.position.x - X_RANGE;
-        }
-        if (cloudGroup2.position.x >= X_RANGE) {
-            cloudGroup2.position.x = cloudGroup.position.x - X_RANGE;
-        }
-
-        renderer.render(scene, camera);
         }
 
         animate();
@@ -302,49 +305,49 @@ Invitation.effects.clouds.instanced.init = function(THREE){
             scrub: true,
 
             onUpdate: ({ progress: p }) => {
-            const zEase = p * p * p;
+                const zEase = p * p * p;
 
-            camera.position.z = START_Z + zEase * CLOUD_COUNT * 0.5;
-            camera.rotation.x = THREE.MathUtils.lerp(START_TILT, END_TILT, p);
+                camera.position.z = START_Z + zEase * CLOUD_COUNT * 0.5;
+                camera.rotation.x = THREE.MathUtils.lerp(START_TILT, END_TILT, p);
 
-            const densityStart = 0.65;
-            const d = THREE.MathUtils.clamp(
-                (p - densityStart) / (1.0 - densityStart),
-                0,
-                1
-            );
+                const densityStart = 0.65;
+                const d = THREE.MathUtils.clamp(
+                    (p - densityStart) / (1.0 - densityStart),
+                    0,
+                    1
+                );
 
-            uniforms.density.value = Math.min(d * d * d, 0.9);
+                uniforms.density.value = Math.min(d * d * d, 0.9);
             },
 
             onEnter: () => {
-            resetXLoopPositions();
-            gsap.to("#aurora-canvas", {
-                maskImage: "linear-gradient(to bottom,transparent 0%,black 30%)",
-                duration: 0.3
-            });
+                resetXLoopPositions();
+                gsap.to("#aurora-canvas", {
+                    maskImage: "linear-gradient(to bottom,transparent 0%,black 30%)",
+                    duration: 0.3
+                });
             },
 
             onLeave: () => {
-            resetXLoopPositions();
-            gsap.to("#aurora-canvas", {
-                maskImage: "linear-gradient(to bottom,transparent 75%,black 90%)",
-                duration: 0.3
-            });
+                resetXLoopPositions();
+                gsap.to("#aurora-canvas", {
+                    maskImage: "linear-gradient(to bottom,transparent 75%,black 90%)",
+                    duration: 0.3
+                });
             },
 
             onEnterBack: () => {
-            gsap.to("#aurora-canvas", {
-                maskImage: "linear-gradient(to bottom,transparent 0%,black 30%)",
-                duration: 0.3
-            });
+                gsap.to("#aurora-canvas", {
+                    maskImage: "linear-gradient(to bottom,transparent 0%,black 30%)",
+                    duration: 0.3
+                });
             },
 
             onLeaveBack: () => {
-            gsap.to("#aurora-canvas", {
-                maskImage: "linear-gradient(to bottom,transparent 75%,black 90%)",
-                duration: 0.3
-            });
+                gsap.to("#aurora-canvas", {
+                    maskImage: "linear-gradient(to bottom,transparent 75%,black 90%)",
+                    duration: 0.3
+                });
             }
         });
 
@@ -355,10 +358,10 @@ Invitation.effects.clouds.instanced.init = function(THREE){
             "--hero-trans-shift": "30%",
             ease: "none",
             scrollTrigger: {
-            trigger: ".driver",
-            start: "50% 90%",
-            end: "+=50%",
-            scrub: true
+                trigger: ".driver",
+                start: "50% 90%",
+                end: "+=50%",
+                scrub: true
             }
         });
 
@@ -366,35 +369,35 @@ Invitation.effects.clouds.instanced.init = function(THREE){
             opacity: 1,
             ease: "none",
             scrollTrigger: {
-            trigger: ".next",
-            start: "top top",
-            toggleActions: "play reverse play reverse"
+                trigger: ".next",
+                start: "top top",
+                toggleActions: "play reverse play reverse"
             }
         });
 
         ScrollTrigger.create({
-        trigger: ".nextSect_wraper",
-        start: "top 0%",   // 👈 EXACT moment next section takes over
+            trigger: ".nextSect_wraper",
+            start: "top 0%",   // 👈 EXACT moment next section takes over
 
-        // markers: true,
+            // markers: true,
 
-        onEnter: () => {
-            isPaused = true;
-        },
+            onEnter: () => {
+                isPaused = true;
+            },
 
-        onLeaveBack: () => {
-            isPaused = false;
-            clock.getDelta(); // prevent jump on resume
-        }
+            onLeaveBack: () => {
+                isPaused = false;
+                clock.getDelta(); // prevent jump on resume
+            }
         });
-        
+
         addEventListener("resize", () => {
             resize();
             ScrollTrigger.refresh();
         });
 
-        
 
-};
+
+    };
 
 })();

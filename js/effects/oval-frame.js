@@ -365,26 +365,40 @@ void main(){
 
 
 
-    function getScrollLockTarget() {
+    // ─── Cross-browser Scroll Lock ───────────────────────────────────────────
+    // iOS Safari ignores overflow:hidden on <html>/<body> because its native
+    // momentum scroll runs outside the DOM's overflow system.
+    // The only reliable fix is to cancel touchmove (and wheel for desktop)
+    // events with preventDefault() using { passive: false }.
+    // Without passive:false, preventDefault() is a silent no-op on iOS ≥ 13.
 
-      const ua = navigator.userAgent;
+    let _scrollLocked = false;
+    const _savedScrollY = { value: 0 };
 
-      const isIOSSafari =
-        /iPad|iPhone|iPod/.test(ua) &&
-        /Safari/.test(ua) &&
-        !/CriOS|FxiOS|EdgiOS/.test(ua);
-
-      return isIOSSafari
-        ? document.documentElement   // iOS Safari
-        : document.body;             // Everything else
+    function _preventScroll(e) {
+      e.preventDefault();
     }
 
-    const scrollLockTarget = getScrollLockTarget();
+    function lockScroll() {
+      if (_scrollLocked) return;
+      _scrollLocked = true;
+      _savedScrollY.value = window.scrollY;
+      // Desktop: cancel wheel & keyboard scroll
+      window.addEventListener('wheel', _preventScroll, { passive: false });
+      // iOS Safari: cancel touch-based scroll
+      document.addEventListener('touchmove', _preventScroll, { passive: false });
+      // Fallback for non-iOS: use overflow hidden on body
+      document.body.style.overflow = 'hidden';
+    }
 
-    //   console.log("UA:", navigator.userAgent);
-    // console.log("Target:", scrollLockTarget);
-    // console.log("Is body?", scrollLockTarget === document.body);
-    // console.log("Is html?", scrollLockTarget === document.documentElement);
+    function unlockScroll() {
+      if (!_scrollLocked) return;
+      _scrollLocked = false;
+      window.removeEventListener('wheel', _preventScroll);
+      document.removeEventListener('touchmove', _preventScroll);
+      document.body.style.overflow = '';
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     const Tl_frameLeave = gsap.timeline({
       paused: true
@@ -469,11 +483,11 @@ void main(){
 
       .add(daughtersOf(), "startLabel+=3")
 
-      .set(scrollLockTarget, { clearProps: "overflow" }, "startLabel+=4.5");
+      .call(unlockScroll, [], "startLabel+=4.5");
 
     // Set callbacks to unlock the scroll when the animation finishes or is fully reversed.
     Tl_frameLeave.eventCallback("onReverseComplete", () => {
-      gsap.set(scrollLockTarget, { clearProps: "overflow" });
+      unlockScroll();
     });
 
     ornateTopTween = Tl_frameLeave.getChildren(true, true, false).find(tween => {
@@ -535,7 +549,7 @@ void main(){
           // If this trigger runs, it means the lock is enabled and we should play.
           if (!framePlayed) {
             framePlayed = true;
-            gsap.set(scrollLockTarget, { overflow: 'hidden' });
+            lockScroll();
             setTimeout(() => {
               Tl_frameLeave.timeScale(1).play();
               flowerWaveTL.timeScale(1).play();
@@ -549,6 +563,7 @@ void main(){
             flowerWaveTL.timeScale(2).pause();
           }
         },
+        markers: true
       });
     }
 

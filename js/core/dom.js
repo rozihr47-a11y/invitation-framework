@@ -38,17 +38,8 @@
         // Calendar
         // =========================
 
-        this.calendarWidget =
-            document.querySelector(".add-to-calendar");
-
-        this.calendarButton =
-            this.calendarWidget?.querySelector(".atc-btn");
-
-        this.googleCalendar =
-            this.calendarWidget?.querySelector(".google-cal");
-
-        this.appleCalendar =
-            this.calendarWidget?.querySelector(".apple-cal");
+        // Calendar widgets are initialised individually by calendar.js
+        // using querySelectorAll — no single-widget reference needed here.
 
         // =========================
         // Popover
@@ -57,7 +48,7 @@
         this.popover =
             document.querySelector("[popover]");
 
-            
+
     };
 
 })();
